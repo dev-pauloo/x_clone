@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "628329358588",
+    "project_id": "x-clone-e4213",
+    "storage_bucket": "x-clone-e4213.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628329358588:android:1d6b4884be32ecf7baa379",
+        "android_client_info": {
+          "package_name": "com.example.x_clone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "628329358588-kakoe3l73gve2lgre2rcit9r2vkmemnf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.x_clone",
+            "certificate_hash": "330d0ca65498f6c3df8f3b692cb3a7740e319626"
+          }
+        },
+        {
+          "client_id": "628329358588-ot5bqskski70hcp5nt319fbhuarhh8vg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6UbEi9P_6COhGUekOYcFUmImIBjOze8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "628329358588-ot5bqskski70hcp5nt319fbhuarhh8vg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "628329358588-3d2nm7eh8q9mvap4cadjcmsofm81tm24.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.xClone"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
