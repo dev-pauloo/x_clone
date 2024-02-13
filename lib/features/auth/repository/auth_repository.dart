@@ -66,7 +66,7 @@ class AuthRepository {
                 userCredential.user!.photoURL ?? AssetsConstants.avatarDefault,
             bannerPicture: AssetsConstants.bannerDefault,
             bio: "",
-            uid: _auth.currentUser!.uid,
+            uid: userCredential.user!.uid,
             isXVerified: false);
 
         await _users.doc(userCredential.user!.uid).set(userModel.toMap());
@@ -105,7 +105,7 @@ class AuthRepository {
               userCredential.user!.photoURL ?? AssetsConstants.avatarDefault,
           bannerPicture: AssetsConstants.bannerDefault,
           bio: "",
-          uid: _auth.currentUser!.uid,
+          uid: userCredential.user!.uid,
           isXVerified: false);
       await _users.doc(userCredential.user!.uid).set(userModel.toMap());
       return right(userModel);
@@ -120,9 +120,15 @@ class AuthRepository {
       {required String email, required String password}) async {
     UserModel userModel;
     try {
-      final userCredential = await _auth.signInWithEmailAndPassword(
+      // final userCredential = await _auth.signInWithEmailAndPassword(
+      //     email: email, password: password);
+      // userModel = await getUserData(userCredential.user!.uid).first;
+      // return right(userModel);
+      var result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      userModel = await getUserData(userCredential.user!.uid).first;
+      final user = result.user;
+      final userId = user!.uid;
+      userModel = await getUserData(userId).first;
       return right(userModel);
       // final session = await _auth.signInWithEmailAndPassword(
       //     email: email, password: password);

@@ -24,3 +24,9 @@ Future<List<File>> pickImages() async {
   }
   return images;
 }
+
+Future<XFile?> pickImage() async {
+  final image = await ImagePicker.platform.getImageFromSource(source: ImageSource.gallery);
+
+  return image;
+}

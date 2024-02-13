@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:x_clone/core/common/loading_page.dart';
@@ -38,6 +37,7 @@ class _CreatePostViewState extends ConsumerState<CreatePostView> {
   void sharePost() {
     ref.read(postControllerProvider.notifier).sharePost(
         images: images, text: postTextController.text, context: context);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -45,7 +45,7 @@ class _CreatePostViewState extends ConsumerState<CreatePostView> {
     final currentUser = ref.watch(userProvider)!;
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
-    final isLoading = ref.watch(postControllerProvider);
+    final isLoading = ref.read(postControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -102,19 +102,22 @@ class _CreatePostViewState extends ConsumerState<CreatePostView> {
                         ],
                       ),
                       if (images.isNotEmpty)
-                        CarouselSlider(
-                          items: images.map(
-                            (file) {
-                              return Container(
-                                width: deviceWidth,
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 5),
-                                child: Image.file(file),
-                              );
-                            },
-                          ).toList(),
-                          options: CarouselOptions(
-                              height: 400, enableInfiniteScroll: false),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: CarouselSlider(
+                            items: images.map(
+                              (file) {
+                                return Container(
+                                  width: deviceWidth,
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 1),
+                                  child: Image.file(file),
+                                );
+                              },
+                            ).toList(),
+                            options: CarouselOptions(
+                                height: 400, enableInfiniteScroll: false),
+                          ),
                         ),
                     ],
                   ),

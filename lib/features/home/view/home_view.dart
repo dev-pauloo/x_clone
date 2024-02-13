@@ -8,7 +8,6 @@ import 'package:x_clone/core/constants/ui_constants.dart';
 import 'package:x_clone/features/auth/controller/auth_controller.dart';
 import 'package:x_clone/features/auth/view/sign_in_view.dart';
 import 'package:x_clone/features/posts/view/create_post_view.dart';
-import 'package:x_clone/models/user_model.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   static route() => MaterialPageRoute(
@@ -43,7 +42,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider)!;
+    final user = ref.watch(userProvider);
 
     return Scaffold(
         appBar: AppBar(
@@ -51,7 +50,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
             icon: const Icon(
               Icons.account_circle_outlined,
             ),
-            onPressed: () {},
+            onPressed: () {
+              signOut();
+            },
           ),
           // title: SizedBox(
           //   width: 200,

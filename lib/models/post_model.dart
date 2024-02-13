@@ -1,43 +1,44 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:x_clone/core/enums/post_type_enum.dart';
 
-@immutable
 class Post {
   final String text;
-  final List<String> hashtags;
-  final String link;
-  final List<String> imageLink;
+  final List<String?>? hashtags; // Use '?' for optional lists
+  final String? link;
+  final List<String?>? imageLink;
   final String uid;
   final PostType postType;
   final DateTime postedAt;
-  final List<String> likes;
-  final List<String> commentIds;
+  final List<String?>? likes;
+  final List<String?>? commentIds;
   final String id;
-  final int resharedCount;
-  const Post({
+  final int? resharedCount;
+
+  Post({
     required this.text,
-    required this.hashtags,
-    required this.link,
-    required this.imageLink,
+    this.hashtags,
+    this.link,
+    this.imageLink,
     required this.uid,
     required this.postType,
     required this.postedAt,
-    required this.likes,
-    required this.commentIds,
+    this.likes,
+    this.commentIds,
     required this.id,
-    required this.resharedCount,
+    this.resharedCount,
   });
 
   Post copyWith({
     String? text,
-    List<String>? hashtags,
+    List<String?>? hashtags, // Use '?' for optional lists
     String? link,
-    List<String>? imageLink,
+    List<String?>? imageLink,
     String? uid,
     PostType? postType,
     DateTime? postedAt,
-    List<String>? likes,
-    List<String>? commentIds,
+    List<String?>? likes,
+    List<String?>? commentIds,
     String? id,
     int? resharedCount,
   }) {
@@ -57,36 +58,34 @@ class Post {
   }
 
   Map<String, dynamic> toMap() {
-    final result = <String, dynamic>{};
-
-    result.addAll({'text': text});
-    result.addAll({'hashtags': hashtags});
-    result.addAll({'link': link});
-    result.addAll({'uid': uid});
-    result.addAll({'postType': postType.type});
-    result.addAll({'postedAt': postedAt.millisecondsSinceEpoch});
-    result.addAll({'likes': likes});
-    result.addAll({'commentIds': commentIds});
-    result.addAll({'resharedCount': resharedCount});
-
-    return result;
+    return {
+      'text': text,
+      'hashtags': hashtags?.map((e) => e).toList(), // Convert to non-null list
+      'link': link,
+      'imageLink': imageLink,
+      'uid': uid,
+      'postType': postType.type,
+      'postedAt': postedAt.millisecondsSinceEpoch,
+      'likes': likes?.map((e) => e).toList(), // Convert to non-null list
+      'commentIds':
+          commentIds?.map((e) => e).toList(), // Convert to non-null list
+      'resharedCount': resharedCount,
+    };
   }
 
   factory Post.fromMap(Map<String, dynamic> map) {
     return Post(
       text: map['text'] ?? '',
-      hashtags: List<String>.from(map['hashtags']),
+      hashtags: map['hashtags']?.cast<String>(), // Cast and handle null
       link: map['link'] ?? '',
-      imageLink: List<String>.from(map['imageLink']),
+      imageLink: map['imageLink']?.cast<String>(), // Cast and handle null
       uid: map['uid'] ?? '',
       postType: (map['postType'] as String).toPostTypeEnum(),
       postedAt: DateTime.fromMillisecondsSinceEpoch(map['postedAt']),
-      likes: List<String>.from(map['likes']),
-      commentIds: List<String>.from(
-        (map['commentIds']),
-      ),
-      id: map['\$id'] ?? '',
-      resharedCount: map['resharedCount'].toInt() ?? 0,
+      likes: map['likes']?.cast<String>(), // Cast and handle null
+      commentIds: map['commentIds']?.cast<String>(), // Cast and handle null
+      id: map['id'] ?? '',
+      resharedCount: map['resharedCount'] ?? 0,
     );
   }
 
@@ -115,16 +114,15 @@ class Post {
 
   @override
   int get hashCode {
-    return text.hashCode ^
-        hashtags.hashCode ^
+    return id.hashCode ^
+        text.hashCode ^
         link.hashCode ^
-        imageLink.hashCode ^
-        uid.hashCode ^
-        postType.hashCode ^
         postedAt.hashCode ^
+        postType.hashCode ^
+        hashtags.hashCode ^
         likes.hashCode ^
         commentIds.hashCode ^
-        id.hashCode ^
-        resharedCount.hashCode;
+        resharedCount.hashCode ^
+        uid.hashCode;
   }
 }

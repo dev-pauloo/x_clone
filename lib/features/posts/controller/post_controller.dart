@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:x_clone/core/enums/post_type_enum.dart';
+import 'package:x_clone/core/providers/storage_repository_provider.dart';
 import 'package:x_clone/core/utils.dart';
 import 'package:x_clone/features/auth/controller/auth_controller.dart';
 import 'package:x_clone/features/posts/repository/post_repository.dart';
@@ -13,15 +14,36 @@ final postControllerProvider =
   return PostController(
     ref: ref,
     postRepository: ref.watch(postRepositoryProvider),
+    storageRepository: ref.watch(storageRepositoryProvider),
   );
 });
+
+final userPostProvider = StreamProvider((
+  ref,
+) {
+  final postController = ref.watch(postControllerProvider.notifier);
+  return postController.fetchUserPosts();
+});
+
+final postsStateProvider = StateProvider<AsyncValue<List<Post>>>(
+  (_) => const AsyncValue.loading(),
+);
+
+final currentUserPostsStateProvider = StateProvider<AsyncValue<List<Post>>>(
+  (_) => const AsyncValue.loading(),
+);
 
 class PostController extends StateNotifier<bool> {
   final PostRepository _postRepository;
   final Ref _ref;
-  PostController({required Ref ref, required PostRepository postRepository})
+  final StorageRepository _storageRepository;
+  PostController(
+      {required Ref ref,
+      required PostRepository postRepository,
+      required StorageRepository storageRepository})
       : _ref = ref,
         _postRepository = postRepository,
+        _storageRepository = storageRepository,
         super(false);
 
   void sharePost({
@@ -34,7 +56,11 @@ class PostController extends StateNotifier<bool> {
       return;
     }
     if (images.isNotEmpty) {
-      _shareImagePost(images: images, text: text, context: context);
+      _shareImagePost(
+        images: images,
+        text: text,
+        context: context,
+      );
     } else {
       _shareTextPost(text: text, context: context);
     }
@@ -46,31 +72,38 @@ class PostController extends StateNotifier<bool> {
     required BuildContext context,
   }) async {
     state = true;
-    String postId = const Uuid().v4();
+    String postId = const Uuid().v4().trim();
     final hashtags = _getHashtagsFromText(text);
     String link = _getLinkFromText(text);
-    final user = _ref.read(userProvider)!;
+    final user = _ref.read(userProvider);
+    List<String> imageLinks = [];
+    for (File image in images) {
+      final imageRes = await _storageRepository.storeFile(
+          path: "posts/${user!.uid}", id: postId, file: image);
+      imageRes.fold((l) => showSnackBar(context, l.message), (r) async {
+        imageLinks.add(r);
 
-    Post post = Post(
-      text: text,
-      hashtags: hashtags,
-      link: link,
-      imageLink: const [],
-      uid: user.uid,
-      postType: PostType.text,
-      postedAt: DateTime.now(),
-      likes: const [],
-      commentIds: const [],
-      id: postId,
-      resharedCount: 0,
-    );
-    final res = await _postRepository.addPost(post);
-    state = false;
-    res.fold(
-      (l) => showSnackBar(context, l.message),
-      (r) => showSnackBar(context, 'Posted successfully!'),
-    );
-    Navigator.pop(context);
+        final Post post = Post(
+            text: text,
+            hashtags: hashtags,
+            link: link,
+            imageLink: imageLinks,
+            uid: user.uid,
+            postType: PostType.image,
+            postedAt: DateTime.now(),
+            likes: const [],
+            commentIds: const [],
+            id: postId,
+            resharedCount: 0);
+        final res = await _postRepository.addPost(post);
+        state = false;
+        res.fold(
+          (l) => showSnackBar(context, l.message),
+          (r) => showSnackBar(context, 'Posted successfully!'),
+        );
+        Navigator.pop(context);
+      });
+    }
   }
 
   void _shareTextPost({
@@ -81,14 +114,14 @@ class PostController extends StateNotifier<bool> {
     String postId = const Uuid().v4();
     final hashtags = _getHashtagsFromText(text);
     String link = _getLinkFromText(text);
-    final user = _ref.read(userProvider)!;
+    final user = _ref.watch(userProvider);
 
     Post post = Post(
       text: text,
       hashtags: hashtags,
       link: link,
       imageLink: const [],
-      uid: user.uid,
+      uid: user!.uid,
       postType: PostType.text,
       postedAt: DateTime.now(),
       likes: const [],
@@ -125,5 +158,10 @@ class PostController extends StateNotifier<bool> {
       }
     }
     return hashtags;
+  }
+
+  Stream<List<Post>> fetchUserPosts() {
+    final postList = _postRepository.fetchUserPosts();
+    return postList;
   }
 }

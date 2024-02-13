@@ -65,6 +65,9 @@ class UserModel {
       'bannerPicture': bannerPicture,
     });
     result.addAll({
+      'uid': uid,
+    });
+    result.addAll({
       'bio': bio,
     });
     result.addAll({
@@ -82,7 +85,7 @@ class UserModel {
       profilePicture: map['profilePicture'] ?? '',
       bannerPicture: map['bannerPicture'] ?? '',
       bio: map['bio'] ?? '',
-      uid: map['\$id'] ?? '',
+      uid: map['uid'] ?? '',
       isXVerified: map['isXVerified'] ?? false,
     );
   }
