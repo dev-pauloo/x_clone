@@ -51,6 +51,9 @@ dependencies:
   timeago: ^3.6.1
   routemaster: ^1.0.1
   any_link_preview: ^3.0.1
+  like_button: ^2.0.5
+  cached_network_image: ^3.3.1
+  flutter_cache_manager: ^3.3.1
   
 dev_dependencies:
   flutter_test:

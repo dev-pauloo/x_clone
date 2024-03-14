@@ -7,7 +7,6 @@ import 'package:x_clone/core/common/loading_page.dart';
 import 'package:x_clone/features/auth/controller/auth_controller.dart';
 import 'package:x_clone/features/posts/controller/post_controller.dart';
 import 'package:x_clone/features/posts/widgets/post_card.dart';
-import 'package:x_clone/models/post_model.dart';
 
 class PostList extends ConsumerWidget {
   const PostList({super.key});

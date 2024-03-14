@@ -53,6 +53,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:x_clone/core/constants/firebase_constants.dart';
 import 'package:x_clone/core/failure.dart';
 import 'package:x_clone/core/providers/firebase_providers.dart';
+import 'package:x_clone/core/type_defs.dart';
 import 'package:x_clone/models/post_model.dart'; // Use rxdart instead of fpdart
 
 final postRepositoryProvider = Provider((ref) {
@@ -86,5 +87,25 @@ class PostRepository {
     return snapshots.map((event) => event.docs
         .map((doc) => Post.fromMap(doc.data()! as Map<String, dynamic>))
         .toList());
+  }
+
+  Future<Either<FailureClass, DocumentReference>> likePost(Post post) async {
+    final collectionReference = _posts;
+    final documentReference = _posts.doc(post.id);
+    try {
+      final documentSnapshot = await documentReference.get();
+
+      final likes = post.likes!;
+
+      await FirebaseFirestore.instance.runTransaction(
+        (Transaction transaction) async {
+          final document = transaction.get(documentReference);
+          transaction.update(documentReference, {'likes': likes});
+        },
+      );
+      return right(documentReference);
+    } on FirebaseException catch (e, stackTrace) {
+      return left(FailureClass(e.toString(), stackTrace));
+    }
   }
 }

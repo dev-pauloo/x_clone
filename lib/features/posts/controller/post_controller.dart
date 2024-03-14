@@ -8,6 +8,7 @@ import 'package:x_clone/core/utils.dart';
 import 'package:x_clone/features/auth/controller/auth_controller.dart';
 import 'package:x_clone/features/posts/repository/post_repository.dart';
 import 'package:x_clone/models/post_model.dart';
+import 'package:x_clone/models/user_model.dart';
 
 final postControllerProvider =
     StateNotifierProvider<PostController, bool>((ref) {
@@ -66,45 +67,45 @@ class PostController extends StateNotifier<bool> {
     }
   }
 
-  void _shareImagePost({
-    required List<File> images,
-    required String text,
-    required BuildContext context,
-  }) async {
-    state = true;
-    String postId = const Uuid().v4().trim();
-    final hashtags = _getHashtagsFromText(text);
-    String link = _getLinkFromText(text);
-    final user = _ref.read(userProvider);
-    List<String> imageLinks = [];
-    for (File image in images) {
-      final imageRes = await _storageRepository.storeFile(
-          path: "posts/${user!.uid}", id: postId, file: image);
-      imageRes.fold((l) => showSnackBar(context, l.message), (r) async {
-        imageLinks.add(r);
+  // void _shareImagePost({
+  //   required List<File> images,
+  //   required String text,
+  //   required BuildContext context,
+  // }) async {
+  //   state = true;
+  //   String postId = const Uuid().v4().trim();
+  //   final hashtags = _getHashtagsFromText(text);
+  //   String link = _getLinkFromText(text);
+  //   final user = _ref.read(userProvider);
+  //   List<String> imageLinks = [];
+  //   for (File image in images) {
+  //     final imageRes = await _storageRepository.storeFile(
+  //         path: "posts/${user!.uid}", id: postId, file: image);
+  //     imageRes.fold((l) => showSnackBar(context, l.message), (r) {
+  //       imageLinks.add(r);
+  //     });
+  //   }
 
-        final Post post = Post(
-            text: text,
-            hashtags: hashtags,
-            link: link,
-            imageLink: imageLinks,
-            uid: user.uid,
-            postType: PostType.image,
-            postedAt: DateTime.now(),
-            likes: const [],
-            commentIds: const [],
-            id: postId,
-            resharedCount: 0);
-        final res = await _postRepository.addPost(post);
-        state = false;
-        res.fold(
-          (l) => showSnackBar(context, l.message),
-          (r) => showSnackBar(context, 'Posted successfully!'),
-        );
-        Navigator.pop(context);
-      });
-    }
-  }
+  //   final Post post = Post(
+  //       text: text,
+  //       hashtags: hashtags,
+  //       link: link,
+  //       imageLink: imageLinks,
+  //       uid: user!.uid,
+  //       postType: PostType.image,
+  //       postedAt: DateTime.now(),
+  //       likes: const [],
+  //       commentIds: const [],
+  //       id: postId,
+  //       resharedCount: 0);
+  //   final res = await _postRepository.addPost(post);
+  //   state = false;
+  //   res.fold(
+  //     (l) => showSnackBar(context, l.message),
+  //     (r) => showSnackBar(context, 'Posted successfully!'),
+  //   );
+  //   Navigator.pop(context);
+  // }
 
   void _shareTextPost({
     required String text,
@@ -138,6 +139,56 @@ class PostController extends StateNotifier<bool> {
     Navigator.pop(context);
   }
 
+  void _shareImagePost({
+    required List<File> images,
+    required String text,
+    required BuildContext context,
+  }) async {
+    state = true;
+    String postId = const Uuid().v4().trim();
+    final hashtags = _getHashtagsFromText(text);
+    String link = _getLinkFromText(text);
+    final user = _ref.read(userProvider);
+
+    try {
+      List<String?>? imageLinks = await _storageRepository.storeFiles(
+        path: "posts/${user!.uid}",
+        id: postId,
+        files: images,
+      );
+
+      print('Image Links: $imageLinks');
+
+      final Post post = Post(
+        text: text,
+        hashtags: hashtags,
+        link: link,
+        imageLink: imageLinks,
+        uid: user.uid,
+        postType: PostType.image,
+        postedAt: DateTime.now(),
+        likes: const [],
+        commentIds: const [],
+        id: postId,
+        resharedCount: 0,
+      );
+
+      final res = await _postRepository.addPost(post);
+
+      res.fold(
+        (l) => showSnackBar(context, l.message),
+        (r) {
+          showSnackBar(context, 'Posted successfully!');
+          Navigator.pop(context);
+        },
+      );
+    } catch (e) {
+      showSnackBar(context, 'An error occurred while sharing the post.');
+    } finally {
+      state = false;
+    }
+  }
+
   String _getLinkFromText(String text) {
     String link = '';
     List<String> wordsInSentence = text.split(' ');
@@ -163,5 +214,19 @@ class PostController extends StateNotifier<bool> {
   Stream<List<Post>> fetchUserPosts() {
     final postList = _postRepository.fetchUserPosts();
     return postList;
+  }
+
+  void likePost(Post post, UserModel user) async {
+    List<String?>? likes = post.likes;
+
+    if (post.likes!.contains(user.uid)) {
+      likes!.remove(user.uid);
+    } else {
+      likes!.add(user.uid);
+    }
+
+    post = post.copyWith(likes: likes);
+    final res = await _postRepository.likePost(post);
+    res.fold((l) => null, (r) {});
   }
 }

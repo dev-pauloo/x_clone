@@ -22,7 +22,7 @@ class CreatePostView extends ConsumerStatefulWidget {
 class _CreatePostViewState extends ConsumerState<CreatePostView> {
   final postTextController = TextEditingController();
   List<File> images = [];
-
+  List<File> _selectedImages = [];
   @override
   void dispose() {
     super.dispose();
@@ -85,7 +85,7 @@ class _CreatePostViewState extends ConsumerState<CreatePostView> {
                           ),
                           Expanded(
                             child: TextFormField(
-                              autofocus: true,
+                              autofocus: false,
                               controller: postTextController,
                               style: const TextStyle(
                                 fontSize: 16,
