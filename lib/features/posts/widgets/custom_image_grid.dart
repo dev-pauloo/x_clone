@@ -28,7 +28,7 @@ class _CustomImageGridState extends ConsumerState<CustomImageGrid> {
   }
 
   Widget _buildImageList(List<String?>? imageLinks) {
-    if (imageLinks == null || imageLinks!.isEmpty) {
+    if (imageLinks == null || imageLinks.isEmpty) {
       return const SizedBox(); // Handle empty image list case (optional)
     }
     final filteredLinks = imageLinks.where((link) => link != null).toList();

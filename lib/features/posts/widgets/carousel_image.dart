@@ -2,9 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:x_clone/features/posts/view/image_full_view.dart';
+import 'package:x_clone/features/posts/widgets/image_full_view.dart';
 
 class CarouselImage extends StatefulWidget {
   final List<String?>? imageLinks;
@@ -29,11 +28,6 @@ class _CarouselImageState extends State<CarouselImage> {
     ),
   );
 
-  // String generateUniqueCacheKey(String imageUrl) {
-  //   final timestamp = DateTime.now().millisecondsSinceEpoch;
-  //   return 'cache_key${imageUrl.hashCode}_$timestamp';
-  // }
-
   Widget _buildImage(String? link) {
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),
@@ -49,135 +43,122 @@ class _CarouselImageState extends State<CarouselImage> {
     );
   }
 
-  void openFullPicture() {
-    Routemaster.of(context).push('/image-full-view');
+  void _openFullPicture() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FullScreenImageCarousel(
+          imageLinks: widget.imageLinks, // Pass imageUrls here
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            widget.imageLinks!.length == 2
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ...widget.imageLinks!.map((link) => _buildImage(link))
-                        ],
-                      ),
-                    ),
-                  )
-                // ? GridView.builder(
-                //     shrinkWrap: true, // Adjust if needed
-                //     physics:
-                //         const NeverScrollableScrollPhysics(), // Disable scrolling
-                //     itemCount: widget.imageLinks!.length,
-                //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                //       crossAxisCount: widget.imageLinks!.length <= 2 ? 2 : 1,
-                //       mainAxisSpacing: 5.0, // Spacing between rows
-                //       crossAxisSpacing: 3.0, // Spacing between columns
-                //       childAspectRatio: 0.8, // Square aspect ratio
-                //     ),
-                //     itemBuilder: (context, index) {
-                //       final link = widget.imageLinks![index];
-                //       return Padding(
-                //         padding:
-                //             const EdgeInsets.only(top: 10.0), // Adjust padding
-                //         child: ClipRRect(
-                //           borderRadius: const BorderRadius.only(
-                //             topLeft: Radius.circular(10),
-                //             topRight: Radius.circular(10),
-                //             bottomLeft: Radius.circular(10),
-                //             bottomRight: Radius.circular(10),
-                //           ),
-                //           child: CachedNetworkImage(
-                //             imageUrl: link!,
-                //             cacheManager: customCacheManger,
-                //             fit: BoxFit.cover,
-                //             placeholder: (context, url) =>
-                //                 const CircularProgressIndicator(),
-                //             errorWidget: (context, url, error) =>
-                //                 const Icon(Icons.error),
-                //           ),
-                //         ),
-                //       );
-                //     },
-                //   )
-                : GestureDetector(
-                    onTap: openFullPicture,
-                    child: SizedBox(
-                      height: 350,
-                      child: CarouselSlider(
-                        items: widget.imageLinks!.map(
-                          (link) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 10.0),
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width * 2,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  // margin: const EdgeInsets.all(10),
-                                  child: CachedNetworkImage(
-                                    cacheManager: customCacheManger,
-                                    imageUrl: link!,
-                                    // cacheKey: generateUniqueCacheKey(link),
-                                    fit: BoxFit.cover,
-                                    progressIndicatorBuilder:
-                                        (context, url, downloadProgress) =>
-                                            const CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ).toList(),
-                        options: CarouselOptions(
-                          viewportFraction: 1,
-                          height: MediaQuery.of(context).size.height / 2,
-                          enableInfiniteScroll: false,
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              _current = index;
-                            });
-                          },
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              widget.imageLinks!.length == 1
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ...widget.imageLinks!
+                                .map((link) => _buildImage(link))
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-            widget.imageLinks!.length > 2
-                ? Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: widget.imageLinks!.asMap().entries.map((e) {
-                        return Container(
-                          width: 6,
-                          height: 6,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black
-                                .withOpacity(_current == e.key ? 0.9 : 0.4),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  )
-                : const SizedBox(height: 0),
-          ],
-        ),
-      ],
+                    )
+                  : widget.imageLinks!.length == 2
+                      ? Row(
+                          children: widget.imageLinks!
+                              .map((link) => Expanded(
+                                    child: GestureDetector(
+                                      onTap: _openFullPicture,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: AspectRatio(
+                                          aspectRatio: 7 / 8,
+                                          child: CachedNetworkImage(
+                                              imageUrl: link!,
+                                              cacheManager: customCacheManger,
+                                              fit: BoxFit.cover),
+                                        ),
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        )
+                      : widget.imageLinks!.length == 3
+                          ? GestureDetector(
+                              onTap: _openFullPicture,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 2,
+                                    child: AspectRatio(
+                                      aspectRatio: 7 / 8,
+                                      child: CachedNetworkImage(
+                                          imageUrl: widget.imageLinks![0]!,
+                                          cacheManager: customCacheManger,
+                                          fit: BoxFit.cover),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Column(
+                                      children: <Widget>[
+                                        AspectRatio(
+                                          aspectRatio: 6.1 / 7,
+                                          child: CachedNetworkImage(
+                                              imageUrl: widget.imageLinks![1]!,
+                                              cacheManager: customCacheManger,
+                                              fit: BoxFit.cover),
+                                        ),
+                                        AspectRatio(
+                                          aspectRatio: 6.1 / 7,
+                                          child: CachedNetworkImage(
+                                              imageUrl: widget.imageLinks![2]!,
+                                              cacheManager: customCacheManger,
+                                              fit: BoxFit.cover),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : widget.imageLinks!.length == 4
+                              ? GridView.builder(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 2 / 1,
+                                  ),
+                                  itemCount: 4,
+                                  itemBuilder: (context, index) {
+                                    return CachedNetworkImage(
+                                        imageUrl: widget.imageLinks![index]!,
+                                        cacheManager: customCacheManger,
+                                        fit: BoxFit.cover);
+                                  },
+                                )
+                              : Container()
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
