@@ -87,6 +87,7 @@ class _CreatePostViewState extends ConsumerState<CreatePostView> {
                             child: TextFormField(
                               autofocus: false,
                               controller: postTextController,
+                              textCapitalization: TextCapitalization.sentences,
                               style: const TextStyle(
                                 fontSize: 16,
                               ),

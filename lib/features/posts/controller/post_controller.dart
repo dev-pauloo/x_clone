@@ -67,46 +67,6 @@ class PostController extends StateNotifier<bool> {
     }
   }
 
-  // void _shareImagePost({
-  //   required List<File> images,
-  //   required String text,
-  //   required BuildContext context,
-  // }) async {
-  //   state = true;
-  //   String postId = const Uuid().v4().trim();
-  //   final hashtags = _getHashtagsFromText(text);
-  //   String link = _getLinkFromText(text);
-  //   final user = _ref.read(userProvider);
-  //   List<String> imageLinks = [];
-  //   for (File image in images) {
-  //     final imageRes = await _storageRepository.storeFile(
-  //         path: "posts/${user!.uid}", id: postId, file: image);
-  //     imageRes.fold((l) => showSnackBar(context, l.message), (r) {
-  //       imageLinks.add(r);
-  //     });
-  //   }
-
-  //   final Post post = Post(
-  //       text: text,
-  //       hashtags: hashtags,
-  //       link: link,
-  //       imageLink: imageLinks,
-  //       uid: user!.uid,
-  //       postType: PostType.image,
-  //       postedAt: DateTime.now(),
-  //       likes: const [],
-  //       commentIds: const [],
-  //       id: postId,
-  //       resharedCount: 0);
-  //   final res = await _postRepository.addPost(post);
-  //   state = false;
-  //   res.fold(
-  //     (l) => showSnackBar(context, l.message),
-  //     (r) => showSnackBar(context, 'Posted successfully!'),
-  //   );
-  //   Navigator.pop(context);
-  // }
-
   void _shareTextPost({
     required String text,
     required BuildContext context,

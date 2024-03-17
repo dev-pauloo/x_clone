@@ -29,7 +29,9 @@ class PostCard extends ConsumerWidget {
         : ref.watch(getUserDataProvider(post.uid)).when(
             data: (user) {
               return GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  //TODO: add full post card + comment display
+                },
                 child: Column(
                   children: [
                     Row(
@@ -38,7 +40,9 @@ class PostCard extends ConsumerWidget {
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10),
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              //TODO: Add user profile route
+                            },
                             child: CircleAvatar(
                               backgroundImage:
                                   NetworkImage(user.profilePicture),
@@ -87,10 +91,15 @@ class PostCard extends ConsumerWidget {
                                 ),
                               if (post.link!.isNotEmpty) ...[
                                 const SizedBox(
-                                  height: 4,
+                                  height: 10,
                                 ),
-                                AnyLinkPreview(
-                                  link: 'htttps:/${post.link}',
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: AnyLinkPreview(
+                                    displayDirection:
+                                        UIDirection.uiDirectionHorizontal,
+                                    link: "https://${post.link}",
+                                  ),
                                 ),
                               ],
                               Padding(
